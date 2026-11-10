@@ -7,6 +7,8 @@ public class DependencyGraphBuilder {
     private final Map<String, List<String>> testGraph;
     private final Set<String> visitedNodes;
 
+    private final Map<String, List<String>> collectedGraph = new HashMap<>();
+
     public DependencyGraphBuilder(String repoUrl, int maxDepth, boolean isTestMode, Map<String, List<String>> testGraph) {
         this.repoUrl = repoUrl;
         this.maxDepth = maxDepth;
@@ -15,9 +17,13 @@ public class DependencyGraphBuilder {
         this.visitedNodes = new HashSet<>();
     }
 
+    public Map<String, List<String>> getCollectedGraph() {
+        return collectedGraph;
+    }
+
     public void build(String rootPackage) {
         visitedNodes.add(rootPackage);
-        System.out.println("\n--- Граф зависимостей для " + rootPackage + " (Глубина: " + maxDepth + ") ---");
+        System.out.println("\nГраф зависимостей для " + rootPackage + " (Глубина: " + maxDepth + ")");
 
         List<String> currentLevel = new ArrayList<>();
         currentLevel.add(rootPackage);
@@ -55,8 +61,7 @@ public class DependencyGraphBuilder {
     }
 
     public void printLoadOrder(String rootPackage) {
-        System.out.println("\n--- Порядок загрузки зависимостей для " + rootPackage + " ---");
-
+        System.out.println("\nПорядок загрузки зависимостей для " + rootPackage);
 
         Set<String> loadOrder = new LinkedHashSet<>();
         Set<String> visiting = new HashSet<>();
@@ -88,24 +93,30 @@ public class DependencyGraphBuilder {
     }
 
     private List<String> getDependencies(String node) {
+        List<String> result;
         if (isTestMode) {
-            return testGraph.getOrDefault(node, Collections.emptyList());
+            result = testGraph.getOrDefault(node, Collections.emptyList());
         } else {
             try {
                 List<Dependency> deps = MavenDependencyFetcher.fetchDirectDependencies(node, repoUrl);
-                List<String> depNames = new ArrayList<>();
+                result = new ArrayList<>();
                 for (Dependency d : deps) {
                     if (d.version() == null) {
                         System.out.println("  ".repeat(maxDepth) + "[Пропуск] " + d.getFullName() + " (версия не указана)");
                     } else {
-                        depNames.add(d.getFullName());
+                        result.add(d.getFullName());
                     }
                 }
-                return depNames;
             } catch (Exception e) {
                 System.err.println("Не удалось получить зависимости для " + node + ": " + e.getMessage());
-                return Collections.emptyList();
+                result = Collections.emptyList();
             }
         }
+
+        if (!result.isEmpty()) {
+            collectedGraph.put(node, result);
+        }
+
+        return result;
     }
 }

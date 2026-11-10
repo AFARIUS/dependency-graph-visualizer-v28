@@ -72,3 +72,12 @@ C -> A
 ```bat
 .\run.bat -p org.apache.commons:commons-lang3:3.12.0 -r https://repo.maven.apache.org/maven2 -d 2
 ```
+
+## Этап 5. Визуализация
+**Описание:**
+Реализована генерация текстового представления графа зависимостей на языке PlantUML. Программа сохраняет результат в файл `dependency-graph.puml` и автоматически открывает браузер с отрендеренным изображением графа (через официальный сервер PlantUML) для наглядного отображения.
+
+**Пример использования:**
+```bat
+.\run.bat -p org.apache.commons:commons-lang3:3.12.0 -r https://repo.maven.apache.org/maven2 -d 2
+```

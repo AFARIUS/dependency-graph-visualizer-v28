@@ -19,6 +19,8 @@ out/
 .idea/
 .idea
 
+*.puml
+
 ### Eclipse ###
 .apt_generated
 .classpath

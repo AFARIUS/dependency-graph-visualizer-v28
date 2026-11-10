@@ -19,6 +19,10 @@ public class Main {
             builder.build(config.packageName());
             builder.printLoadOrder(config.packageName());
 
+            System.out.println("\n--- Генерация визуализации графа ---");
+            PlantUmlGenerator.generate(builder.getCollectedGraph(), "dependency-graph.puml");
+            PlantUmlGenerator.showInBrowser(builder.getCollectedGraph());
+
         } catch (IllegalArgumentException e) {
             System.err.println("Ошибка конфигурации: " + e.getMessage());
             System.err.println("Использование: run.bat -p <package> -r <url/path> -d <depth> [-t]");
