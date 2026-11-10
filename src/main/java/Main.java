@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Map;
 
 public class Main {
@@ -6,18 +7,17 @@ public class Main {
             AppConfig config = CliParser.parse(args);
             System.out.println(config + "\n");
 
-            Map<String, java.util.List<String>> testGraph = null;
+            Map<String, List<String>> testGraph = null;
 
-            // Если включен тестовый режим, читаем локальный файл
             if (config.isTestMode()) {
                 System.out.println("Включен режим тестирования. Чтение графа из файла: " + config.repoUrl());
                 testGraph = TestRepoReader.readTestGraph(config.repoUrl());
             }
 
-            // Создаем и запускаем построение графа
             DependencyGraphBuilder builder = new DependencyGraphBuilder(config.repoUrl(), config.maxDepth(), config.isTestMode(), testGraph);
 
             builder.build(config.packageName());
+            builder.printLoadOrder(config.packageName());
 
         } catch (IllegalArgumentException e) {
             System.err.println("Ошибка конфигурации: " + e.getMessage());

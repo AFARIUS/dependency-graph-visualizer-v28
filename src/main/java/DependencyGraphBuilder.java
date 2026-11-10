@@ -4,8 +4,8 @@ public class DependencyGraphBuilder {
     private final String repoUrl;
     private final int maxDepth;
     private final boolean isTestMode;
-    private final Map<String, List<String>> testGraph; // Используется только в тестовом режиме
-    private final Set<String> visitedNodes; // Множество обработки циклов и дубликатов (используется свойство уникальности элементов множества)
+    private final Map<String, List<String>> testGraph;
+    private final Set<String> visitedNodes;
 
     public DependencyGraphBuilder(String repoUrl, int maxDepth, boolean isTestMode, Map<String, List<String>> testGraph) {
         this.repoUrl = repoUrl;
@@ -17,18 +17,14 @@ public class DependencyGraphBuilder {
 
     public void build(String rootPackage) {
         visitedNodes.add(rootPackage);
-        System.out.println("\nГраф зависимостей для " + rootPackage + " (Глубина: " + maxDepth + ")");
+        System.out.println("\n--- Граф зависимостей для " + rootPackage + " (Глубина: " + maxDepth + ") ---");
 
-        // Запускаем рекурсивный BFS с 0-го уровня
         List<String> currentLevel = new ArrayList<>();
         currentLevel.add(rootPackage);
 
         bfsRecursive(currentLevel, 0);
     }
 
-    /**
-     * Рекурсивный BFS. На каждом шаге обрабатывает текущий уровень и вызывает себя для следующего.
-     */
     private void bfsRecursive(List<String> currentLevelNodes, int currentDepth) {
         if (currentDepth >= maxDepth) {
             return;
@@ -58,9 +54,39 @@ public class DependencyGraphBuilder {
         }
     }
 
-    /**
-     * Получает зависимости узла. Либо из тестового файла, либо из интернета.
-     */
+    public void printLoadOrder(String rootPackage) {
+        System.out.println("\n--- Порядок загрузки зависимостей для " + rootPackage + " ---");
+
+
+        Set<String> loadOrder = new LinkedHashSet<>();
+        Set<String> visiting = new HashSet<>();
+
+        buildLoadOrder(rootPackage, 0, loadOrder, visiting);
+
+        List<String> finalOrder = new ArrayList<>(loadOrder);
+        Collections.reverse(finalOrder);
+
+        for (int i = 0; i < finalOrder.size(); i++) {
+            System.out.println((i + 1) + ". " + finalOrder.get(i));
+        }
+    }
+
+    private void buildLoadOrder(String node, int depth, Set<String> loadOrder, Set<String> visiting) {
+        if (depth > maxDepth || visiting.contains(node)) {
+            return;
+        }
+
+        visiting.add(node);
+
+        List<String> dependencies = getDependencies(node);
+        for (String dep : dependencies) {
+            buildLoadOrder(dep, depth + 1, loadOrder, visiting);
+        }
+
+        visiting.remove(node);
+        loadOrder.add(node);
+    }
+
     private List<String> getDependencies(String node) {
         if (isTestMode) {
             return testGraph.getOrDefault(node, Collections.emptyList());
@@ -70,7 +96,7 @@ public class DependencyGraphBuilder {
                 List<String> depNames = new ArrayList<>();
                 for (Dependency d : deps) {
                     if (d.version() == null) {
-                        System.out.println("  [Пропуск] " + d.getFullName() + " (версия не указана в POM)");
+                        System.out.println("  ".repeat(maxDepth) + "[Пропуск] " + d.getFullName() + " (версия не указана)");
                     } else {
                         depNames.add(d.getFullName());
                     }
