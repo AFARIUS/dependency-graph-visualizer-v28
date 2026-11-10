@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 public class PlantUmlGenerator {
-
     public static void generate(Map<String, List<String>> graph, String outputFileName) {
         String plantUmlCode = buildPlantUmlCode(graph);
         try (FileWriter writer = new FileWriter(outputFileName)) {
@@ -19,7 +18,6 @@ public class PlantUmlGenerator {
 
     public static void showInBrowser(Map<String, List<String>> graph) {
         String plantUmlCode = buildPlantUmlCode(graph);
-        // HEX-кодирование
         StringBuilder hex = new StringBuilder("~h");
         for (byte b : plantUmlCode.getBytes(java.nio.charset.StandardCharsets.UTF_8)) {
             hex.append(String.format("%02x", b));

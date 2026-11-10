@@ -19,7 +19,7 @@ public class Main {
             builder.build(config.packageName());
             builder.printLoadOrder(config.packageName());
 
-            System.out.println("\n--- Генерация визуализации графа ---");
+            System.out.println("\nГенерация визуализации графа");
             PlantUmlGenerator.generate(builder.getCollectedGraph(), "dependency-graph.puml");
             PlantUmlGenerator.showInBrowser(builder.getCollectedGraph());
 

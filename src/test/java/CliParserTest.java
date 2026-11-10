@@ -16,19 +16,19 @@ public class CliParserTest {
 
     @Test
     public void testMissingRequiredArgument() {
-        String[] args = {"-p", "org.test:test:1.0", "-d", "3"}; // Нет -r
+        String[] args = {"-p", "org.test:test:1.0", "-d", "3"};
         assertThrows(IllegalArgumentException.class, () -> CliParser.parse(args));
     }
 
     @Test
     public void testInvalidDepthFormat() {
-        String[] args = {"-p", "pkg", "-r", "url", "-d", "abc"}; // Не число
+        String[] args = {"-p", "pkg", "-r", "url", "-d", "abc"};
         assertThrows(IllegalArgumentException.class, () -> CliParser.parse(args));
     }
 
     @Test
     public void testNegativeDepth() {
-        String[] args = {"-p", "pkg", "-r", "url", "-d", "-5"}; // Отрицательное число
+        String[] args = {"-p", "pkg", "-r", "url", "-d", "-5"};
         assertThrows(IllegalArgumentException.class, () -> CliParser.parse(args));
     }
 }
