@@ -54,7 +54,7 @@ public class MavenDependencyFetcher {
         Document doc = builder.parse(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)));
 
         NodeList dependenciesList = doc.getElementsByTagName("dependencies");
-        
+
         if (dependenciesList.getLength() > 0) {
             Node dependenciesNode = dependenciesList.item(0);
             NodeList children = dependenciesNode.getChildNodes();
@@ -65,9 +65,10 @@ public class MavenDependencyFetcher {
                     Element depElement = (Element) child;
                     String group = getTagValue("groupId", depElement);
                     String artifact = getTagValue("artifactId", depElement);
+                    String version = getTagValue("version", depElement);
 
                     if (group != null && artifact != null) {
-                        dependencies.add(new Dependency(group, artifact));
+                        dependencies.add(new Dependency(group, artifact, version));
                     }
                 }
             }
